@@ -1,0 +1,19 @@
+[package]
+name = "rank-bm25-python"
+description = "Python bindings for rank-bm25"
+publish = false
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+name = "_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.29", features = ["abi3-py310"] }
+rayon = "1.12"
+rank-bm25 = { path = "../../crates/rank-bm25" }

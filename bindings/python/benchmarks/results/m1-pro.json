@@ -1,0 +1,54 @@
+{
+ "python": "3.13.9",
+ "platform": "macOS-14.5-arm64-arm-64bit-Mach-O",
+ "cpus": 8,
+ "rank_bm25_rs": "0.1.0",
+ "query_tokens": 6,
+ "rows": [
+  {
+   "documents": 10000,
+   "tokens": 6695550,
+   "build_s": {
+    "rank_bm25": 1.842,
+    "rank_bm25_rs": 0.315
+   },
+   "get_scores_ms": {
+    "rank_bm25": 16.055,
+    "rank_bm25_rs": 0.0253,
+    "rank_bm25_rs_many_per_query": 0.0174
+   },
+   "build_speedup": 5.9,
+   "query_speedup": 635.3
+  },
+  {
+   "documents": 29482,
+   "tokens": 32704864,
+   "build_s": {
+    "rank_bm25": 9.491,
+    "rank_bm25_rs": 2.039
+   },
+   "get_scores_ms": {
+    "rank_bm25": 58.275,
+    "rank_bm25_rs": 0.0645,
+    "rank_bm25_rs_many_per_query": 0.045
+   },
+   "build_speedup": 4.7,
+   "query_speedup": 903.8
+  },
+  {
+   "documents": 100000,
+   "tokens": 105993759,
+   "build_s": {
+    "rank_bm25": 20.788,
+    "rank_bm25_rs": 4.857
+   },
+   "get_scores_ms": {
+    "rank_bm25": 187.576,
+    "rank_bm25_rs": 0.1971,
+    "rank_bm25_rs_many_per_query": 0.1107
+   },
+   "build_speedup": 4.3,
+   "query_speedup": 951.9
+  }
+ ]
+}

@@ -1,0 +1,43 @@
+name: Full parity
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Queries per dataset (empty for 200)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.11", "3.13"]
+    defaults:
+      run:
+        working-directory: bindings/python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv sync --group dev --group bench
+      - name: Compare with langdetect
+        shell: bash
+        run: |
+          cd benchmarks
+          uv run python parity.py ${{ inputs.limit && format('--queries {0}', inputs.limit) || '' }} --output parity.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: parity-${{ matrix.os }}-${{ matrix.python }}
+          path: bindings/python/benchmarks/parity.json

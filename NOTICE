@@ -1,0 +1,6 @@
+rank-bm25-rs
+Copyright 2026 Alex Kholodniak
+
+This product is a Rust port of rank_bm25 (https://github.com/dorianbrown/rank_bm25) by Dorian Brown,
+licensed under the Apache License 2.0. bindings/python/python/rank_bm25_rs/_reference.py is a copy of
+rank_bm25 0.2.2, used as a fallback for inputs the Rust core does not handle.

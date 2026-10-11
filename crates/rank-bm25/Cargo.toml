@@ -1,0 +1,18 @@
+[package]
+name = "rank-bm25"
+description = "BM25Okapi, BM25L and BM25Plus with scores identical to Python's rank_bm25"
+readme = "../../README.md"
+keywords = ["bm25", "search", "ranking", "information-retrieval", "nlp"]
+categories = ["text-processing", "algorithms"]
+include = ["src/**/*.rs", "Cargo.toml", "LICENSE", "NOTICE"]
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+rustc-hash = "2"
+

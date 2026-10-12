@@ -24,6 +24,7 @@ classifiers = [
 dynamic = ["version"]
 
 [project.urls]
+Homepage = "https://syntaxspirits.dev/rank-bm25-rs"
 Repository = "https://github.com/SyntaxSpirits/rank-bm25-rs"
 Issues = "https://github.com/SyntaxSpirits/rank-bm25-rs/issues"
 

@@ -2,7 +2,7 @@
 name = "rank-bm25"
 description = "BM25Okapi, BM25L and BM25Plus with scores identical to Python's rank_bm25"
 readme = "../../README.md"
-keywords = ["bm25", "search", "ranking", "information-retrieval", "nlp"]
+keywords = ["bm25", "search", "ranking", "retrieval", "nlp"]
 categories = ["text-processing", "algorithms"]
 include = ["src/**/*.rs", "Cargo.toml", "LICENSE", "NOTICE"]
 version.workspace = true

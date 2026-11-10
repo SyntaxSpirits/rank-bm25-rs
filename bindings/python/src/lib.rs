@@ -1,6 +1,6 @@
 use std::sync::OnceLock;
 
-use pyo3::exceptions::{PyValueError, PyZeroDivisionError};
+use pyo3::exceptions::{PyMemoryError, PyOverflowError, PyValueError, PyZeroDivisionError};
 use pyo3::ffi;
 use pyo3::prelude::*;
 use pyo3::types::{PyByteArray, PyBytes, PyDict, PyList, PyString, PyTuple};
@@ -143,7 +143,10 @@ impl Index {
         rows: usize,
         fill: impl Fn(&mut [f64]) -> Vec<bool> + Send + Sync,
     ) -> PyResult<(Bound<'py, PyByteArray>, Vec<bool>)> {
-        let len = rows * self.inner.corpus_size();
+        let len = rows
+            .checked_mul(self.inner.corpus_size())
+            .filter(|&len| len <= isize::MAX as usize / 8)
+            .ok_or_else(|| PyOverflowError::new_err("score matrix is too large"))?;
         let mut finite = Vec::new();
         let buf = PyByteArray::new_with(py, len * 8, |bytes| {
             // SAFETY: f64 accepts every bit pattern; align_to_mut only yields the aligned middle.
@@ -151,7 +154,10 @@ impl Index {
             if head.is_empty() && scores.len() == len {
                 finite = py.detach(|| fill(scores));
             } else {
-                let mut tmp = vec![0.0f64; len];
+                let mut tmp = Vec::new();
+                tmp.try_reserve_exact(len)
+                    .map_err(|_| PyMemoryError::new_err(()))?;
+                tmp.resize(len, 0.0f64);
                 finite = py.detach(|| fill(&mut tmp));
                 bytes.copy_from_slice(as_bytes(&tmp));
             }
@@ -285,7 +291,9 @@ impl Index {
     }
 }
 
-#[pymodule]
+/// `push_document` relies on borrowed list items staying valid, which only the GIL guarantees,
+/// so free-threaded Python keeps it enabled for this module.
+#[pymodule(gil_used = true)]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     m.add_class::<Index>()?;

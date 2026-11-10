@@ -2,6 +2,7 @@ import os
 import pickle
 import subprocess
 import sys
+import sysconfig
 import textwrap
 
 import numpy as np
@@ -180,6 +181,23 @@ def test_get_scores_many_after_fork():
         [sys.executable, "-c", code], capture_output=True, text=True, env=env, timeout=60
     )
     assert out.stdout.strip() == "ok", out.stderr
+
+
+@pytest.mark.skipif(
+    not sysconfig.get_config_var("Py_GIL_DISABLED"), reason="needs free-threaded CPython"
+)
+def test_free_threaded_python_keeps_the_gil_for_the_module():
+    code = (
+        "import sys, numpy\n"
+        "before = sys._is_gil_enabled()\n"
+        "import rank_bm25_rs\n"
+        "print(before, sys._is_gil_enabled())\n"
+    )
+    env = {k: v for k, v in os.environ.items() if k != "PYTHON_GIL"}
+    out = subprocess.run(
+        [sys.executable, "-W", "ignore", "-c", code], capture_output=True, text=True, env=env
+    )
+    assert out.stdout.split() == ["False", "True"], out.stderr
 
 
 # Corner cases found in review; each runs on both packages.

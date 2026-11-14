@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Free-threaded Python keeps the GIL enabled for the extension module, which reads list items
+  without holding references.
+- `get_scores_many` raises `OverflowError` or `MemoryError` instead of overflowing when the
+  result does not fit in memory.
+- Tested on Python 3.15 and free-threaded 3.14; releases install the built wheels and the sdist
+  into clean environments and run the tests before publishing.
+
 ## 0.1.0 - 2026-10-12
 
 First release.

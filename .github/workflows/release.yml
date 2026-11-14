@@ -34,7 +34,7 @@ jobs:
           path: dist
 
   macos:
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [x86_64, aarch64]
@@ -75,9 +75,51 @@ jobs:
           name: sdist
           path: dist
 
+  installed:
+    needs: [linux, macos, windows, sdist]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, python: "3.10", artifact: wheels-linux-x86_64-auto }
+          - { os: ubuntu-latest, python: "3.15", artifact: wheels-linux-x86_64-auto }
+          - { os: ubuntu-24.04-arm, python: "3.13", artifact: wheels-linux-aarch64-auto }
+          - { os: macos-15, python: "3.10", artifact: wheels-macos-aarch64 }
+          - { os: macos-15, python: "3.15", artifact: wheels-macos-aarch64 }
+          - { os: windows-latest, python: "3.10", artifact: wheels-windows-x64 }
+          - { os: windows-latest, python: "3.15", artifact: wheels-windows-x64 }
+          - { os: ubuntu-latest, python: "3.15", artifact: sdist }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: bindings/python/tests
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: dtolnay/rust-toolchain@stable
+        if: matrix.artifact == 'sdist'
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ runner.temp }}/dist
+      - name: Install into a clean environment and run the tests against it
+        shell: bash
+        run: |
+          cp -R bindings/python/tests "$RUNNER_TEMP/tests"
+          cd "$RUNNER_TEMP"
+          python -m venv venv
+          py=venv/bin/python
+          [ -x "$py" ] || py=venv/Scripts/python.exe
+          "$py" -m pip install numpy pytest hypothesis rank-bm25==0.2.2
+          "$py" -m pip install --no-deps dist/*
+          cd tests
+          "../$py" -c "import rank_bm25_rs; print(rank_bm25_rs.__version__, rank_bm25_rs.__file__)"
+          "../$py" -m pytest -p no:cacheprovider -q test_parity.py test_api.py
+
   pypi:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [tests, linux, macos, windows, sdist]
+    needs: [tests, linux, macos, windows, sdist, installed]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:

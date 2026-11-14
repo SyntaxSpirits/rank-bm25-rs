@@ -54,7 +54,14 @@ bm25.get_scores_many([["windy", "London"], ["is"]])
 #        [0.        , 0.10042443, 0.10946263]])
 ```
 
-Set `RAYON_NUM_THREADS` to limit the threads.
+Set `RAYON_NUM_THREADS` to limit the threads. The result holds 8 bytes per query and document
+(10,000 queries over 100,000 documents take 8 GB), so for large workloads pass the queries in
+chunks:
+
+```python
+for start in range(0, len(queries), 1000):
+    scores = bm25.get_scores_many(queries[start : start + 1000])
+```
 
 ### Code you do not control
 
@@ -117,7 +124,7 @@ Known differences:
 
 - The Rust index does not see changes made to the `idf`, `doc_freqs` or `doc_len` attributes
   after construction; `rank_bm25` would use a modified `idf` dictionary.
-- Python 3.10 or newer is required.
+- Python 3.10 or newer is required. On free-threaded Python the module keeps the GIL enabled.
 
 ## Development
 

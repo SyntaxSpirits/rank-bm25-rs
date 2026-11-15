@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 - 2026-11-15
 
 - Free-threaded Python keeps the GIL enabled for the extension module, which reads list items
   without holding references.
